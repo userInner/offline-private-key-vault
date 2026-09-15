@@ -4,6 +4,10 @@
 
 ## 使用
 
+**在线打开：[离线私钥保险箱](https://userinner.github.io/offline-private-key-vault/)**
+
+在线版打开时会从 GitHub Pages 加载网页；文本与密钥仍由浏览器在本地处理。导出的加密网页可以断网独立使用。
+
 下载仓库 ZIP 并解压，用浏览器打开 [dist/离线私钥保险箱.html](dist/离线私钥保险箱.html)。GitHub 的源码预览页不能直接运行工具。
 
 1. 输入文本，生成并下载密钥，或选择已有密钥。
@@ -42,3 +46,17 @@ node tests/browser.cjs
 ```
 
 `src/core.js` 处理公开格式和密码运算；`src/app.js` 处理文件选择与页面状态；构建脚本将所有资源内嵌，并生成 CSP 哈希。所有测试仅使用虚构数据。
+
+## GitHub Pages 发布
+
+Pages 从 `main` 分支的 `/docs` 目录发布，入口为 `docs/index.html`。更新源码后，生成离线文件和发布入口，再一起提交：
+
+```sh
+node build.cjs
+node build.cjs docs/index.html
+git add src build.cjs dist docs/index.html
+git commit -m "Update vault"
+git push origin main
+```
+
+`docs/.nojekyll` 让 Pages 直接发布静态文件，不改变页面内容。
