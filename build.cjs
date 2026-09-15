@@ -1,0 +1,11 @@
+const fs=require('node:fs');
+const path=require('node:path');
+const {createHash}=require('node:crypto');
+const src=name=>fs.readFileSync(path.join(__dirname,'src',name),'utf8');
+const core=src('core.js'),app=src('app.js'),style=src('style.css');
+const hash=s=>"'sha256-"+createHash('sha256').update(s).digest('base64')+"'";
+const csp="default-src 'none'; script-src "+hash(core)+' '+hash(app)+"; style-src "+hash(style)+"; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'";
+let html=src('page.html');
+for(const [token,value] of [['__CSP__',csp],['__STYLE__',style],['__CORE__',core],['__APP__',app]])html=html.replace(token,()=>value);
+const output=process.argv[2]||path.resolve(__dirname,'dist/离线私钥保险箱.html');
+fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,html);console.log('Built standalone HTML:',Buffer.byteLength(html),'bytes');
