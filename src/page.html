@@ -14,12 +14,12 @@
 <aside class="rail">
   <div class="brand"><svg width="36" height="36" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="8" stroke="currentColor"/><path d="M11 14v-3a5 5 0 0110 0v3M9 14h14v11H9zM16 18v3" stroke="currentColor" stroke-width="1.6"/></svg><span>LOCAL VAULT<span class="brand-cn">离线私钥保险箱</span></span></div>
   <div class="rail-copy"><span class="eyebrow">由你保管</span><h2>一份密文。<br>一把钥匙。</h2><p>把需要保密的文字，存进只有密钥才能打开的文件。</p></div>
-  <ol class="steps"><li><span>01</span><div>输入文本<small>私钥、助记词或其他文字</small></div></li><li><span>02</span><div>单独保存密钥<small>建议放入 U 盘并离线备份</small></div></li><li><span>03</span><div>保存加密网页<small>自带解密界面，无需安装</small></div></li></ol>
+  <ol class="steps"><li><span>01</span><div>输入文本<small>私钥、助记词或其他文字</small></div></li><li><span>02</span><div>单独保存密钥<small>建议放入 U 盘并离线备份</small></div></li><li><span>03</span><div>保存加密文件<small>解密时选择文件与密钥</small></div></li></ol>
   <div class="rail-foot"><span class="protocol">AES-256-GCM</span><p>本地处理 · 无账户 · 无服务器</p></div>
 </aside>
 <main>
   <header class="topline"><span class="eyebrow" id="mode-label">离线工具 / VERSION 1</span><button id="clear" class="quiet" type="button">清除当前内容</button></header>
-  <div class="heading"><h1 id="page-title">让秘密，只属于你。</h1><p id="page-description">生成加密网页。以后用浏览器打开它，选择密钥即可解密。</p></div>
+  <div class="heading"><h1 id="page-title">让秘密，只属于你。</h1><p id="page-description">文本加密后保存为文件。解密时，选择加密文件与对应密钥。</p></div>
   <noscript><p class="notice error">需要启用 JavaScript 才能在本地执行加密和解密。</p></noscript>
   <div id="status" class="notice" role="status" aria-live="polite">就绪。所有内容仅在当前页面中处理。</div>
   <nav class="tabs" aria-label="操作方式" id="tabs"><button type="button" id="tab-encrypt" aria-pressed="true">加密文本</button><button type="button" id="tab-decrypt" aria-pressed="false">解密文件</button></nav>
@@ -27,21 +27,20 @@
     <div class="label-row"><label for="encrypt-text">需要保密的文本</label><span class="meta" id="byte-count">0 B / 1 MiB</span></div>
     <textarea id="encrypt-text" placeholder="在这里输入或粘贴文本…" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" aria-describedby="text-help"></textarea>
     <p class="help" id="text-help">保留原有换行与空格。页面不会自动保存输入内容。</p>
-    <div class="key-box"><div class="label-row"><h2>准备密钥</h2><span class="tag">单独保管</span></div><p>首次使用，先下载新密钥；已有密钥可以直接选择。</p><button id="generate-key" type="button" class="secondary" data-lock>生成并下载新密钥</button><label for="encrypt-key" class="file-label">选择已保存的密钥文件</label><input id="encrypt-key" type="file" accept=".key" data-lock><p id="encrypt-key-info" class="help">重新选择下载好的密钥后，才能导出加密网页。</p></div>
-    <div class="action-row"><button id="encrypt" type="button" class="primary" disabled>加密并下载网页 <span aria-hidden="true">↗</span></button><span class="help">密钥不会放进网页里</span></div>
-    <div id="verify-box" class="verification" hidden><h2>最后一步：验证保存的文件</h2><p>选择刚下载的加密网页。校验通过后，页面会清除输入文本和当前密钥。</p><label for="verify-file">选择下载的加密网页，完成校验</label><input id="verify-file" type="file" accept=".html,.htm" data-lock></div>
+    <div class="key-box"><div class="label-row"><h2>准备密钥</h2><span class="tag">单独保管</span></div><p>首次使用，先下载新密钥；已有密钥可以直接选择。</p><button id="generate-key" type="button" class="secondary" data-lock>生成并下载新密钥</button><label for="encrypt-key" class="file-label">选择已保存的密钥文件</label><input id="encrypt-key" type="file" accept=".key" data-lock><p id="encrypt-key-info" class="help">重新选择下载好的密钥后，才能导出加密文件。</p></div>
+    <div class="action-row"><button id="encrypt" type="button" class="primary" disabled>加密并下载文件 <span aria-hidden="true">↗</span></button><span class="help">下载为 .vault 文件</span></div>
+    <div id="verify-box" class="verification" hidden><h2>最后一步：验证保存的文件</h2><p>选择刚下载的加密文件。校验通过后，页面会清除输入文本和当前密钥。</p><label for="verify-file">选择下载的加密文件，完成校验</label><input id="verify-file" type="file" accept=".vault" data-lock></div>
   </section>
   <section id="decrypt-panel" class="panel" aria-label="解密文件" hidden>
-    <div id="file-picker"><label for="encrypted-file">选择加密网页</label><input id="encrypted-file" type="file" accept=".html,.htm" data-lock></div>
-    <div class="sealed-info"><span class="seal-icon" aria-hidden="true">▣</span><div><h2 id="cipher-title">等待选择加密文件</h2><p id="cipher-info">这里只读取密文，不执行导入网页中的代码。</p></div></div>
+    <div id="file-picker"><label for="encrypted-file">选择加密文件（.vault）</label><input id="encrypted-file" type="file" accept=".vault,.html,.htm" data-lock></div>
+    <div class="sealed-info"><span class="seal-icon" aria-hidden="true">▣</span><div><h2 id="cipher-title">等待选择加密文件</h2><p id="cipher-info">选择之前下载的 .vault 文件，再选择对应的 .key 密钥。</p></div></div>
     <label for="decrypt-key" class="file-label">选择对应的密钥文件</label><input id="decrypt-key" type="file" accept=".key" data-lock><p id="decrypt-key-info" class="help">密钥只用于当前页面，不会被上传。</p>
     <button id="decrypt" type="button" class="primary" disabled>使用密钥解密</button>
     <div class="result"><div class="label-row"><h2>解密结果</h2><button id="reveal" type="button" class="secondary compact" disabled aria-expanded="false">显示原文</button></div><p id="result-placeholder" class="result-empty">成功解密后，点击「显示原文」查看。</p><label for="plain-output" class="sr-only">解密后的原文</label><textarea id="plain-output" readonly hidden spellcheck="false" autocomplete="off"></textarea><p class="help">切换窗口会隐藏原文。显示后可自行选中文字复制。</p></div>
   </section>
-  <footer class="notes"><p><strong>密钥丢失，无法找回。</strong> 同时拿到密钥和加密文件的人，可以解密。</p><details><summary>安全与使用说明</summary><div><p>密钥由系统安全随机源生成，采用 AES-256-GCM 加密并检测密文篡改。正确实现且密钥未泄露时，以目前公开技术，穷举在现实中不可行；这不代表电脑中毒后也能保护明文。</p><p>只打开自己导出或确认可信的加密网页。HTML 内含可执行代码，被替换的网页可能窃取你随后选择的密钥。不要将密文篡改检测理解为网页代码可信验证。</p><p>建议断网使用，并将密钥另存到 U 盘、再做离线备份。不要将两份文件一起同步到云盘。5 分钟无操作会清除当前敏感内容；浏览器内存、系统交换文件和剪贴板历史无法保证彻底擦除。</p><p>请使用支持本地文件 Web Crypto 的现代浏览器。下载是由浏览器保存的，页面无法设置磁盘文件权限；请使用你自己的系统账户保护下载目录。文件格式与解密代码公开，不绑定账户或原电脑。</p></div></details></footer>
+  <footer class="notes"><p><strong>密钥丢失，无法找回。</strong> 同时拿到密钥和加密文件的人，可以解密。</p><details><summary>安全与使用说明</summary><div><p>密钥由系统安全随机源生成，采用 AES-256-GCM 加密并检测密文篡改。正确实现且密钥未泄露时，以目前公开技术，穷举在现实中不可行；这不代表电脑中毒后也能保护明文。</p><p>请使用可信的工具页面。导出的 .vault 文件只包含密文，不含密钥或解密程序。也可导入旧版 .html 加密文件，页面仅读取其中的密文，不执行它的代码。</p><p>建议断网使用，并将密钥另存到 U 盘、再做离线备份。不要将两份文件一起同步到云盘。5 分钟无操作会清除当前敏感内容；浏览器内存、系统交换文件和剪贴板历史无法保证彻底擦除。</p><p>请使用支持本地文件 Web Crypto 的现代浏览器。下载是由浏览器保存的，页面无法设置磁盘文件权限；请使用你自己的系统账户保护下载目录。文件格式与解密代码公开，不绑定账户或原电脑。</p></div></details></footer>
 </main>
 </div>
-<script id="vault-payload" type="application/octet-stream"></script>
 <script>__CORE__</script>
 <script>__APP__</script>
 </body>

@@ -13,7 +13,7 @@ Exactly 40 bytes:
 
 Generate key material using the operating system cryptographic random generator (`crypto.getRandomValues` here). A key file is a plaintext secret credential, not password protected. The UI fingerprint is the first 8 bytes of SHA-256(raw key), displayed as 4 groups of 4 hexadecimal digits; it is informational and not a substitute for cryptographic authentication.
 
-## Cipher envelope
+## Encrypted file (`.vault`)
 
 | Offset | Length | Meaning |
 |---|---:|---|
@@ -26,7 +26,7 @@ Additional authenticated data (AAD) is exactly the eight header bytes `PVLT0001`
 
 Do not decode or output any plaintext until GCM authentication succeeds. Reject unsupported headers, invalid lengths, altered/truncated ciphertext, wrong keys, and invalid UTF-8. There is no “ignore authentication failure” mode.
 
-## HTML carrier
+## Legacy HTML import compatibility
 
 A standalone HTML document embeds the envelope as standard canonical padded Base64, with no whitespace, in exactly one element:
 
@@ -34,11 +34,13 @@ A standalone HTML document embeds the envelope as standard canonical padded Base
 <script id="vault-payload" type="application/octet-stream">BASE64_ENVELOPE</script>
 ```
 
-The empty tool template has an empty payload. Export replaces only this inert element inside an immutable template captured before user interaction, retaining fixed CSS and program code. It never serializes a live form. The key and plaintext are not embedded. The receiver can extract this envelope and decrypt using any conforming AES-GCM implementation, independently of the HTML.
+Current exports save the raw binary envelope directly as `.vault`, with no executable shell, Base64 wrapper, key, plaintext, or application code. The encryption/decryption tool remains a separate webpage. Opening a raw `.vault` file alone does not decrypt it.
 
-HTML imports by the main tool are parsed as strings with a strict, single-marker search, not inserted into the live DOM and not executed. Inputs over 4 MiB are rejected. Payloads must use canonical Base64.
+For compatibility, the tool can still import old HTML carriers: it extracts exactly one inert payload marker, validates canonical Base64 and the decoded envelope, and never inserts or executes imported HTML. Raw input files are limited to 4 MiB; binary envelopes remain limited to 1 MiB + 36 bytes. Header and length are checked before enabling decryption; AES-GCM authentication is checked before releasing plaintext.
 
-The HTML shell is executable and is not authenticated by GCM. Only run a trustworthy original HTML file. Content Security Policy uses hashes for the bundled executable scripts and styles, denies network connections and external resources, but cannot defend against an attacker who replaces the entire HTML/CSP. No browser storage, third-party libraries, network APIs or service workers are used by the app.
+Saved-file verification compares the whole downloaded `.vault` byte-for-byte with the just-exported envelope and then decrypts it. New edits after export are preserved. No live form or webpage serialization is involved in encryption exports.
+
+The tool's HTML/CSP must be trusted. Content Security Policy permits only hashed bundled scripts/styles and denies remote connections/resources. No browser storage, third-party libraries, network APIs or service workers are used by the app. GitHub Pages serves the public tool; secret processing happens in the browser. A downloaded copy of the tool works offline.
 
 ## Independent Node.js example (for developers only)
 

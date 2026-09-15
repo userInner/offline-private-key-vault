@@ -25,8 +25,12 @@ globalThis.Vault = (() => {
       return join(header,iv,new Uint8Array(cipher));
     } finally { plain.fill(0); }
   }
-  async function open(b,k) {
+  function validateEnvelope(b) {
     if(bytes(b).length<37 || b.length>MAX+36 || !matches(b,header)) throw new Error('加密文件格式、版本或长度无效。');
+    return b;
+  }
+  async function open(b,k) {
+    validateEnvelope(b);
     const key=await importKey(k,'decrypt');
     let plain;
     try {
@@ -49,10 +53,12 @@ globalThis.Vault = (() => {
     return all[0];
   }
   function extract(html) {return fromBase64(locate(html)[1]);}
-  function embed(template,b) {
-    locate(template);
-    return template.replace(marker,()=>'<script id="vault-payload" type="application/octet-stream">'+toBase64(b)+'<\/script>');
+  function parseFile(b) {
+    if(bytes(b).length>4*1024*1024)throw new Error('文件超过 4 MiB 上限。');
+    if(matches(b,header))return validateEnvelope(b);
+    try{return validateEnvelope(extract(new TextDecoder('utf-8',{fatal:true}).decode(b)));}
+    catch{throw new Error('无法识别加密文件，请选择本工具导出的 .vault 文件。');}
   }
   async function fingerprint(k) {const hash=new Uint8Array(await crypto.subtle.digest('SHA-256',checkKey(k)));return [...hash.slice(0,8)].map(n=>n.toString(16).padStart(2,'0')).join('').match(/.{4}/g).join('-');}
-  return Object.freeze({MAX,generateKey,keyFile,parseKey,seal,open,toBase64,fromBase64,extract,embed,fingerprint});
+  return Object.freeze({MAX,generateKey,keyFile,parseKey,seal,open,toBase64,fromBase64,extract,parseFile,fingerprint});
 })();

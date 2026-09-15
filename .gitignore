@@ -6,3 +6,4 @@ test-artifacts/
 .env.*
 !.env.example
 加密保险箱-*.html
+*.vault
